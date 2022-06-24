@@ -1,9 +1,6 @@
 package io.openvidu.recording.java;
 
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
+import io.openvidu.java.client.*;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -11,20 +8,11 @@ import org.json.simple.parser.ParseException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import io.openvidu.java.client.OpenVidu;
-import io.openvidu.java.client.OpenViduHttpException;
-import io.openvidu.java.client.OpenViduJavaClientException;
-import io.openvidu.java.client.OpenViduRole;
-import io.openvidu.java.client.Recording;
-import io.openvidu.java.client.RecordingProperties;
-import io.openvidu.java.client.Session;
-import io.openvidu.java.client.TokenOptions;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @RestController
 @RequestMapping("/api")
@@ -68,9 +56,15 @@ public class MyRestController {
 
 		// Role associated to this user
 		OpenViduRole role = OpenViduRole.PUBLISHER;
-
+        String roleName = (String) sessionJSON.get("roleName");
+        String data = (String) sessionJSON.get("data");
+        for (OpenViduRole value : OpenViduRole.values()) {
+            if (value.name().equals(roleName)) {
+                role = value;
+            }
+        }
 		// Build tokenOptions object with the serverData and the role
-		TokenOptions tokenOptions = new TokenOptions.Builder().role(role).build();
+		TokenOptions tokenOptions = new TokenOptions.Builder().role(role).data(data).build();
 
 		JSONObject responseJson = new JSONObject();
 
@@ -290,9 +284,12 @@ public class MyRestController {
 		Recording.OutputMode outputMode = Recording.OutputMode.valueOf((String) json.get("outputMode"));
 		boolean hasAudio = (boolean) json.get("hasAudio");
 		boolean hasVideo = (boolean) json.get("hasVideo");
-
+        String name = "";
+        if (json.containsKey("name")) {
+            name = json.get("name").toString();
+        }
 		RecordingProperties properties = new RecordingProperties.Builder().outputMode(outputMode).hasAudio(hasAudio)
-				.hasVideo(hasVideo).build();
+				.hasVideo(hasVideo).name(name).build();
 
 		System.out.println("Starting recording for session " + sessionId + " with properties {outputMode=" + outputMode
 				+ ", hasAudio=" + hasAudio + ", hasVideo=" + hasVideo + "}");
