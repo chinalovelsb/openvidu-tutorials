@@ -8,6 +8,7 @@ import org.json.simple.parser.ParseException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -288,8 +289,19 @@ public class MyRestController {
         if (json.containsKey("name")) {
             name = json.get("name").toString();
         }
-		RecordingProperties properties = new RecordingProperties.Builder().outputMode(outputMode).hasAudio(hasAudio)
-				.hasVideo(hasVideo).name(name).build();
+        RecordingProperties.Builder build=new RecordingProperties.Builder()
+                .outputMode(outputMode)
+                .hasAudio(hasAudio)
+                .hasVideo(hasVideo)
+                .name(name);
+        if (Recording.OutputMode.COMPOSED.equals(outputMode)) {
+            build.recordingLayout(RecordingLayout.CUSTOM);
+            if (!StringUtils.isEmpty(json.get("customLayout"))) {
+                build.customLayout(json.get("customLayout").toString());
+            }
+        }
+        RecordingProperties properties = build.build();
+
 
 		System.out.println("Starting recording for session " + sessionId + " with properties {outputMode=" + outputMode
 				+ ", hasAudio=" + hasAudio + ", hasVideo=" + hasVideo + "}");
