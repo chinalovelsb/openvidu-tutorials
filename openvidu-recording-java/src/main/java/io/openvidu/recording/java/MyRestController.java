@@ -285,6 +285,7 @@ public class MyRestController {
 		Recording.OutputMode outputMode = Recording.OutputMode.valueOf((String) json.get("outputMode"));
 		boolean hasAudio = (boolean) json.get("hasAudio");
 		boolean hasVideo = (boolean) json.get("hasVideo");
+		String  resolution = (String) json.get("resolution");
         String name = "";
         if (json.containsKey("name")) {
             name = json.get("name").toString();
@@ -293,7 +294,8 @@ public class MyRestController {
                 .outputMode(outputMode)
                 .hasAudio(hasAudio)
                 .hasVideo(hasVideo)
-                .name(name);
+                .name(name)
+                .resolution(resolution);
         if (Recording.OutputMode.COMPOSED.equals(outputMode)) {
             build.recordingLayout(RecordingLayout.CUSTOM);
             if (!StringUtils.isEmpty(json.get("customLayout"))) {
